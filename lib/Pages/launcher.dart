@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:khuspus/Helper/sendAIRequest.dart';
 import 'package:record/record.dart';
 import 'package:window_manager_plus/window_manager_plus.dart';
 
@@ -98,11 +99,11 @@ class _LauncherScreenState extends State<LauncherScreen> {
     });
 
     // Simulate AI polishing
-    await Future.delayed(const Duration(seconds: 2));
+    var aiResponse = await sendAIRequest(textController.text);
 
     if (mounted) {
       setState(() {
-        textController.text = "${textController.text} (polished)";
+        textController.text = aiResponse;
         isPolishing = false;
       });
     }

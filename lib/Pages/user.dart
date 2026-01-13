@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:khuspus/db/queries/setting_queries.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -8,7 +9,28 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
+  TextEditingController _nameController = TextEditingController();
+  var wordProcessd, aiCorrections, userName;
+
+  Future<void> getMetaData() async {
+    final word = await getSetting("wordsProcessed");
+    final ai = await getSetting("aiCorrections");
+    final name = await getSetting("userName");
+    setState(() {
+      wordProcessd = word!;
+      aiCorrections = ai!;
+      userName = name!;
+    });
+  }
+
   var isEditing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getMetaData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -36,6 +58,7 @@ class _UserPageState extends State<UserPage> {
                               width: 240,
                               height: 30,
                               child: TextField(
+                                controller: _nameController,
                                 style: TextStyle(fontSize: 14), // small text
                                 textAlign: TextAlign.left,
                                 decoration: InputDecoration(
@@ -51,7 +74,7 @@ class _UserPageState extends State<UserPage> {
                               ),
                             )
                           : Text(
-                              "Hi, Guest",
+                              "Hi, $userName",
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 18,
@@ -65,10 +88,16 @@ class _UserPageState extends State<UserPage> {
                         iconSize: 18,
                         padding: EdgeInsets.all(4),
                         constraints: BoxConstraints(),
-                        onPressed: () {
+                        onPressed: () async {
                           setState(() {
                             isEditing = !isEditing;
+                            isEditing
+                                ? _nameController.text = userName
+                                : userName = _nameController.text;
                           });
+                          await setSetting("userName", _nameController.text);
+
+                          // !isEditing ? await setUsername() : null;
                         },
                       ),
                     ],
@@ -79,7 +108,7 @@ class _UserPageState extends State<UserPage> {
                       RichText(
                         text: TextSpan(
                           style: DefaultTextStyle.of(context).style,
-                          children: const <TextSpan>[
+                          children: <TextSpan>[
                             TextSpan(
                               text: 'Word processes \n',
                               style: TextStyle(
@@ -88,7 +117,7 @@ class _UserPageState extends State<UserPage> {
                               ),
                             ),
                             TextSpan(
-                              text: '200',
+                              text: wordProcessd,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 18,
@@ -102,7 +131,7 @@ class _UserPageState extends State<UserPage> {
                         textAlign: TextAlign.right,
                         text: TextSpan(
                           style: DefaultTextStyle.of(context).style,
-                          children: const <TextSpan>[
+                          children: <TextSpan>[
                             TextSpan(
                               text: 'AI corrections\n',
                               style: TextStyle(
@@ -111,7 +140,7 @@ class _UserPageState extends State<UserPage> {
                               ),
                             ),
                             TextSpan(
-                              text: '15',
+                              text: aiCorrections,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 18,
