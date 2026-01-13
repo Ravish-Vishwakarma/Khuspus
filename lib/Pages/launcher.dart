@@ -118,7 +118,7 @@ class _LauncherScreenState extends State<LauncherScreen> {
         onKeyEvent: handleKeyEvent,
         child: Container(
           padding: const EdgeInsets.all(12),
-          child: Row(
+          child: Column(
             children: [
               Expanded(
                 child: Align(
@@ -132,7 +132,7 @@ class _LauncherScreenState extends State<LauncherScreen> {
 
               // Bottom Controls
               const SizedBox(height: 8),
-              _buildRightControls(),
+              _buildBottomControls(),
             ],
           ),
         ),
@@ -266,11 +266,11 @@ class _LauncherScreenState extends State<LauncherScreen> {
 
   // ------------------------------ AUDIO END ------------------------------ //
 
-  Widget _buildRightControls() {
-    return Column(
+  Widget _buildBottomControls() {
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
+        Row(
           children: [
             _buildIconButton(Icons.history, () async {
               await WindowManagerPlus.current.setSize(
@@ -278,11 +278,22 @@ class _LauncherScreenState extends State<LauncherScreen> {
                 animate: true,
               );
             }),
-
-            const SizedBox(height: 8),
+            const SizedBox(width: 8),
             if (textController.text.isNotEmpty && !isProcessing && !isVoiceMode)
               _buildIconButton(Icons.auto_fix_high, _handlePolish),
+            // const SizedBox(width: 8),
           ],
+        ),
+        Expanded(
+          child: Container(
+            height: 27,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onPanStart: (_) {
+                WindowManagerPlus.current.startDragging();
+              },
+            ),
+          ),
         ),
         _buildModeButton(),
       ],
@@ -291,6 +302,7 @@ class _LauncherScreenState extends State<LauncherScreen> {
 
   Widget _buildIconButton(IconData icon, VoidCallback onPressed) {
     return Container(
+      margin: const EdgeInsets.only(right: 0),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
