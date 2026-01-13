@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:khuspus/db/queries/setting_queries.dart';
+import 'package:khuspus/db/queries/transcription_queries.dart';
+import 'package:open_filex/open_filex.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -24,15 +26,71 @@ class _UserPageState extends State<UserPage> {
   }
 
   var isEditing = false;
+  List<Map<String, dynamic>> transcripts = [];
+
+  Future<void> _loadTranscripts() async {
+    final data = await loadTranscripts();
+
+    if (!mounted) return;
+
+    setState(() {
+      transcripts = List<Map<String, dynamic>>.from(data);
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     getMetaData();
+    _loadTranscripts();
   }
 
   @override
   Widget build(BuildContext context) {
+    late List<DataRow> transcriptsRows = transcripts.map((trans) {
+      return DataRow(
+        cells: [
+          DataCell(
+            IconButton(
+              onPressed: () async {
+                await OpenFilex.open(trans['audioPath']);
+              },
+              icon: Icon(Icons.play_arrow_rounded),
+            ),
+          ),
+          DataCell(
+            Text(
+              trans['originalText'],
+              // softWrap: true,
+              // maxLines: null,
+              // overflow: TextOverflow.visible,
+            ),
+          ),
+          DataCell(
+            Text(
+              trans['polishedText'],
+              // softWrap: true,
+              // maxLines: null,
+              // overflow: TextOverflow.visible,
+            ),
+          ),
+          DataCell(
+            IconButton(
+              onPressed: () async {
+                await deleteTranscripts(trans['id'], trans['audioPath']);
+                setState(() {
+                  transcripts.removeWhere(
+                    (element) => element['id'] == trans['id'],
+                  );
+                });
+              },
+              icon: Icon(Icons.delete_outline_rounded, color: Colors.red),
+            ),
+          ),
+        ],
+      );
+    }).toList();
+
     return Column(
       children: [
         SizedBox(
@@ -193,50 +251,7 @@ class _UserPageState extends State<UserPage> {
                   ),
                 ),
               ],
-              rows: <DataRow>[
-                DataRow(
-                  cells: [
-                    DataCell(
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.play_arrow_rounded),
-                      ),
-                    ),
-                    DataCell(Text('Hello this is ravish')),
-                    DataCell(Text('Hello, this is Ravish')),
-                    DataCell(
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.delete_outline_rounded,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                DataRow(
-                  cells: [
-                    DataCell(
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.play_arrow_rounded),
-                      ),
-                    ),
-                    DataCell(Text('Hello this is ravish')),
-                    DataCell(Text('Hello, this is Ravish')),
-                    DataCell(
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.delete_outline_rounded,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              rows: transcriptsRows,
             ),
           ),
         ),

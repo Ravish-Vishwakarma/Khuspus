@@ -15,7 +15,7 @@ Future<String?> getSetting(String key) async {
 
   final result = await db.query(
     'settings',
-    where: 'key = ?',
+    where: '"key" = ?',
     whereArgs: [key],
     limit: 1,
   );

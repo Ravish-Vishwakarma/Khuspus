@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:khuspus/Helper/sendAIRequest.dart';
+import 'package:khuspus/db/queries/setting_queries.dart';
 import 'package:khuspus/db/queries/transcription_queries.dart';
 import 'package:record/record.dart';
 import 'package:window_manager_plus/window_manager_plus.dart';
@@ -75,6 +76,14 @@ class _LauncherScreenState extends State<LauncherScreen> {
   }
 
   // ---------------------------------------- FORMATTING ---------------------------------------- //
+  int wordCount(String text) {
+    return text
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((word) => word.isNotEmpty)
+        .length;
+  }
+
   String extractWhisperText(String whisperOutput) {
     return whisperOutput
         .replaceAll(RegExp(r'\[.*?\]'), '')
@@ -112,6 +121,13 @@ class _LauncherScreenState extends State<LauncherScreen> {
     }
 
     await updatePolishedTranscript(id: rowID, polishedText: aiResponse);
+
+    var oldAICount = await getSetting("aiCorrections");
+    Clipboard.setData(ClipboardData(text: aiResponse));
+    await setSetting(
+      "aiCorrections",
+      "${int.parse(oldAICount.toString()) + 1}",
+    );
   }
 
   // ---------------------------------------- RECORDING ---------------------------------------- //
@@ -177,6 +193,14 @@ class _LauncherScreenState extends State<LauncherScreen> {
       originalText: cleanedTranscription,
       polishedText: "",
       audioPath: file,
+    );
+
+    var oldWordCount = await getSetting("wordsProcessed");
+
+    Clipboard.setData(ClipboardData(text: cleanedTranscription));
+    await setSetting(
+      "wordsProcessed",
+      "${int.parse(oldWordCount.toString()) + wordCount(cleanedTranscription)}",
     );
   }
 
