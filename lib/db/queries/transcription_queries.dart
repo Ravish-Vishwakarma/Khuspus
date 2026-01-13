@@ -14,3 +14,17 @@ Future<int> insertTranscript({
     'created_at': DateTime.now().millisecondsSinceEpoch,
   });
 }
+
+Future<int> updatePolishedTranscript({
+  required int id,
+  required String polishedText,
+}) async {
+  final db = await AppDatabase.get();
+
+  return await db.update(
+    'transcripts',
+    {'polishedText': polishedText},
+    where: 'id = ?',
+    whereArgs: [id],
+  );
+}

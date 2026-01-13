@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:khuspus/Helper/sendAIRequest.dart';
+import 'package:khuspus/db/queries/transcription_queries.dart';
 import 'package:record/record.dart';
 import 'package:window_manager_plus/window_manager_plus.dart';
 
@@ -29,12 +30,15 @@ class LauncherScreen extends StatefulWidget {
 }
 
 class _LauncherScreenState extends State<LauncherScreen> {
+  // ---------------------------------------- VARAIBLES ---------------------------------------- //
   bool isVoiceMode = false;
   bool isProcessing = false;
   bool isPolishing = false;
+  late int rowID;
   final TextEditingController textController = TextEditingController();
   final FocusNode focusNode = FocusNode();
 
+  // ---------------------------------------- STOPWATCH ---------------------------------------- //
   final Stopwatch _stopwatch = Stopwatch();
   Timer? _timer;
   void _stopwatchStart() {
@@ -54,16 +58,15 @@ class _LauncherScreenState extends State<LauncherScreen> {
     setState(() {});
   }
 
+  // ---------------------------------------- KEYBOARD ---------------------------------------- //
   void handleKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.tab) {
       setState(() {
         isVoiceMode = !isVoiceMode;
         if (isVoiceMode) {
           textController.clear();
-          // Start recording
           startRecording();
         } else {
-          // Stop recording
           stopRecording();
           isProcessing = true;
         }
@@ -71,11 +74,10 @@ class _LauncherScreenState extends State<LauncherScreen> {
     }
   }
 
+  // ---------------------------------------- FORMATTING ---------------------------------------- //
   String extractWhisperText(String whisperOutput) {
     return whisperOutput
-        // remove timestamps
         .replaceAll(RegExp(r'\[.*?\]'), '')
-        // remove extra spaces
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
   }
@@ -91,6 +93,7 @@ class _LauncherScreenState extends State<LauncherScreen> {
     return "$minutes:$seconds.$milliseconds";
   }
 
+  // ---------------------------------------- POLISHING USING AI ---------------------------------------- //
   Future<void> _handlePolish() async {
     if (textController.text.trim().isEmpty) return;
 
@@ -107,6 +110,74 @@ class _LauncherScreenState extends State<LauncherScreen> {
         isPolishing = false;
       });
     }
+
+    await updatePolishedTranscript(id: rowID, polishedText: aiResponse);
+  }
+
+  // ---------------------------------------- RECORDING ---------------------------------------- //
+  String? currentRecordingPath;
+  final recorder = AudioRecorder();
+
+  Future<void> startRecording() async {
+    final audioDir = Directory('audio');
+    if (!audioDir.existsSync()) audioDir.createSync();
+
+    int i = 1;
+    String filePath;
+    do {
+      filePath = '${audioDir.path}\\audio$i.wav';
+      i++;
+    } while (File(filePath).existsSync());
+
+    currentRecordingPath = filePath;
+
+    await recorder.start(
+      const RecordConfig(encoder: AudioEncoder.wav),
+      path: filePath,
+    );
+    print('Recording started...');
+    setState(() {
+      isVoiceMode = true;
+    });
+
+    _stopwatchReset();
+    _stopwatchStart();
+  }
+
+  Future<String?> stopRecording() async {
+    final recordedPath = await recorder.stop();
+    print('Recording stopped: $recordedPath');
+    setState(() {
+      isVoiceMode = false;
+      isProcessing = true;
+      isPolishing = false;
+    });
+    runWhisper(recordedPath);
+    _stopwatchStop();
+    return recordedPath;
+  }
+
+  // ------------------------------ TRANSCRIPTION ------------------------------ //
+  Future<void> runWhisper(file) async {
+    final result = await Process.run('whisper\\whisper-cli.exe', [
+      '-m',
+      'whisper\\model\\ggml-small.en.bin',
+      '-f',
+      '$file',
+    ]);
+
+    String cleanedTranscription = extractWhisperText(result.stdout);
+    setState(() {
+      isProcessing = false;
+      isPolishing = false;
+      textController.text = cleanedTranscription;
+    });
+    print("$cleanedTranscription");
+    rowID = await insertTranscript(
+      originalText: cleanedTranscription,
+      polishedText: "",
+      audioPath: file,
+    );
   }
 
   @override
@@ -140,6 +211,7 @@ class _LauncherScreenState extends State<LauncherScreen> {
     );
   }
 
+  // ------------------------------ UI WIDGETS ------------------------------ //
   Widget _buildMainContent() {
     if (isProcessing || isPolishing) {
       return _buildLoadingState();
@@ -201,70 +273,6 @@ class _LauncherScreenState extends State<LauncherScreen> {
       ],
     );
   }
-
-  // ------------------------------ AUDIO ------------------------------ //
-  String? currentRecordingPath;
-  final recorder = AudioRecorder();
-
-  Future<void> startRecording() async {
-    final audioDir = Directory('audio');
-    if (!audioDir.existsSync()) audioDir.createSync();
-
-    int i = 1;
-    String filePath;
-    do {
-      filePath = '${audioDir.path}\\audio$i.wav';
-      i++;
-    } while (File(filePath).existsSync());
-
-    currentRecordingPath = filePath;
-
-    await recorder.start(
-      const RecordConfig(encoder: AudioEncoder.wav),
-      path: filePath,
-    );
-    print('Recording started...');
-    setState(() {
-      isVoiceMode = true;
-    });
-
-    _stopwatchReset();
-    _stopwatchStart();
-  }
-
-  Future<String?> stopRecording() async {
-    final recordedPath = await recorder.stop();
-    // recorder.dispose();
-    print('Recording stopped: $recordedPath');
-    setState(() {
-      isVoiceMode = false;
-      isProcessing = true;
-      isPolishing = false;
-    });
-    runWhisper(recordedPath);
-    _stopwatchStop();
-    return recordedPath;
-  }
-
-  Future<void> runWhisper(file) async {
-    final result = await Process.run('whisper\\whisper-cli.exe', [
-      '-m',
-      'whisper\\model\\ggml-small.en.bin',
-      '-f',
-      '$file',
-    ]);
-
-    String cleanedTranscription = extractWhisperText(result.stdout);
-    setState(() {
-      isProcessing = false;
-      isPolishing = false;
-      textController.text = cleanedTranscription;
-    });
-    print(result.stdout);
-    print("Done");
-  }
-
-  // ------------------------------ AUDIO END ------------------------------ //
 
   Widget _buildBottomControls() {
     return Row(
