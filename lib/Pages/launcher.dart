@@ -118,7 +118,7 @@ class _LauncherScreenState extends State<LauncherScreen> {
         onKeyEvent: handleKeyEvent,
         child: Container(
           padding: const EdgeInsets.all(12),
-          child: Column(
+          child: Row(
             children: [
               Expanded(
                 child: Align(
@@ -132,7 +132,7 @@ class _LauncherScreenState extends State<LauncherScreen> {
 
               // Bottom Controls
               const SizedBox(height: 8),
-              _buildBottomControls(),
+              _buildRightControls(),
             ],
           ),
         ),
@@ -266,11 +266,11 @@ class _LauncherScreenState extends State<LauncherScreen> {
 
   // ------------------------------ AUDIO END ------------------------------ //
 
-  Widget _buildBottomControls() {
-    return Row(
+  Widget _buildRightControls() {
+    return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
+        Column(
           children: [
             _buildIconButton(Icons.history, () async {
               await WindowManagerPlus.current.setSize(
@@ -279,9 +279,9 @@ class _LauncherScreenState extends State<LauncherScreen> {
               );
             }),
 
+            const SizedBox(height: 8),
             if (textController.text.isNotEmpty && !isProcessing && !isVoiceMode)
               _buildIconButton(Icons.auto_fix_high, _handlePolish),
-            const SizedBox(width: 8),
           ],
         ),
         _buildModeButton(),
@@ -291,7 +291,6 @@ class _LauncherScreenState extends State<LauncherScreen> {
 
   Widget _buildIconButton(IconData icon, VoidCallback onPressed) {
     return Container(
-      margin: const EdgeInsets.only(right: 8),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
