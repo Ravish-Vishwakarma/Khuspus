@@ -56,14 +56,11 @@ class AppDatabase {
   // ------------------------
   static Future<void> _seedDefaultSettings(Database db) async {
     const defaults = {
-      'keepHistory': 'true',
       'autoRefine': 'false',
-      'sendAnalytics': 'true',
       'aiModel': 'gemma3:1b',
       'transcriptionModel': 'small.en',
       'wordsProcessed': '78',
       'aiCorrections': '1',
-      'theme': 'light',
       'userName': 'Ravish Vishwakarma',
       'launcherShortcut': 'Shift+Meta+F24',
       'polish_prompt': '''

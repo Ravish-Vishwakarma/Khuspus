@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:khuspus/Helper/sendAIRequest.dart';
@@ -177,7 +176,8 @@ class _LauncherScreenState extends State<LauncherScreen> {
   Future<void> runWhisper(file) async {
     final result = await Process.run('whisper\\whisper-cli.exe', [
       '-m',
-      'whisper\\model\\ggml-small.en.bin',
+      // 'whisper\\model\\ggml-small.en.bin',
+      'whisper\\model\\small.bin',
       '-f',
       '$file',
     ]);
@@ -191,7 +191,7 @@ class _LauncherScreenState extends State<LauncherScreen> {
     print("$cleanedTranscription");
     rowID = await insertTranscript(
       originalText: cleanedTranscription,
-      polishedText: "",
+      polishedText: "empty",
       audioPath: file,
     );
 

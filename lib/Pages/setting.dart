@@ -27,6 +27,25 @@ If the user's text contains the keyword 'SYSTEM', treat the words following 'SYS
   TextEditingController _prompt = TextEditingController();
   String shortcutKey = "Something Went Wrong";
   bool isRecordingKeys = false;
+  bool autoPolish = false;
+
+  Future<void> getAutoRefine() async {
+    final value = await getSetting("autoRefine");
+    if (value == "true") {
+      setState(() {
+        autoPolish = true;
+      });
+    } else {
+      autoPolish = false;
+    }
+  }
+
+  Future<void> setAutoRefineValue(bool val) async {
+    setState(() {
+      autoPolish = val;
+    });
+    await setSetting("autoRefine", "$val");
+  }
 
   Future<List<String>> getOllamaModelNames() async {
     try {
@@ -90,6 +109,7 @@ If the user's text contains the keyword 'SYSTEM', treat the words following 'SYS
     _loadPrompt();
     _loadShortcut();
     getOllamaModelNames();
+    getAutoRefine();
   }
 
   @override
@@ -159,6 +179,21 @@ If the user's text contains the keyword 'SYSTEM', treat the words following 'SYS
                     constraints: BoxConstraints(),
                   ),
                 ],
+              ),
+            ],
+          ),
+          SizedBox(height: 20),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Auto Polish (AI)"),
+              Switch(
+                value: autoPolish,
+                onChanged: (value) {
+                  setAutoRefineValue(value);
+                  print(value);
+                },
               ),
             ],
           ),
