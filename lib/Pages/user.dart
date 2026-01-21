@@ -38,11 +38,15 @@ class _UserPageState extends State<UserPage> {
     });
   }
 
+  _startup() async {
+    await getMetaData();
+    await _loadTranscripts();
+  }
+
   @override
   void initState() {
     super.initState();
-    getMetaData();
-    _loadTranscripts();
+    _startup();
   }
 
   @override

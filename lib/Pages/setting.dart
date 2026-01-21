@@ -103,13 +103,17 @@ If the user's text contains the keyword 'SYSTEM', treat the words following 'SYS
     });
   }
 
+  _startup() async {
+    await _loadPrompt();
+    await _loadShortcut();
+    await getOllamaModelNames();
+    await getAutoRefine();
+  }
+
   @override
   void initState() {
     super.initState();
-    _loadPrompt();
-    _loadShortcut();
-    getOllamaModelNames();
-    getAutoRefine();
+    _startup();
   }
 
   @override

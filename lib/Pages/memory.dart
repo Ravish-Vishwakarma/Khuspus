@@ -27,10 +27,14 @@ class _MemoryPageState extends State<MemoryPage> {
     });
   }
 
+  _startup() async {
+    await _loadMemories();
+  }
+
   @override
   void initState() {
     super.initState();
-    _loadMemories();
+    _startup();
   }
 
   @override
