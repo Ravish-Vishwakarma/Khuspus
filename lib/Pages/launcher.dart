@@ -29,7 +29,39 @@ class LauncherScreen extends StatefulWidget {
   State<LauncherScreen> createState() => _LauncherScreenState();
 }
 
-class _LauncherScreenState extends State<LauncherScreen> {
+class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
+  @override
+  void initState() {
+    super.initState();
+    WindowManagerPlus.current.addListener(this);
+  }
+
+  @override
+  void dispose() {
+    WindowManagerPlus.current.removeListener(this);
+    super.dispose();
+  }
+
+  @override
+  Future<dynamic> onEventFromWindow(
+    String eventName,
+    int fromWindowId,
+    dynamic arguments,
+  ) async {
+    if (eventName == "db_getSetting") {
+      final key = arguments["key"];
+      return await getSetting(key);
+    }
+
+    if (eventName == "db_setSetting") {
+      final key = arguments["key"];
+      final value = arguments["value"];
+      return await setSetting(key, value);
+    }
+
+    return null;
+  }
+
   // ---------------------------------------- VARAIBLES ---------------------------------------- //
   bool isVoiceMode = false;
   bool isProcessing = false;

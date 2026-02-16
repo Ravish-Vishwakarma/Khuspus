@@ -14,8 +14,8 @@ import 'package:window_manager_plus/window_manager_plus.dart';
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  initDatabase();
-  await AppDatabase.get();
+  // ----------------------------- System Tray -----------------------------  //
+  // System Tray Settings Button Handler
   Future<void> openSettingsWindow() async {
     final ids = await WindowManagerPlus.getAllWindowManagerIds();
 
@@ -57,6 +57,10 @@ void main(List<String> args) async {
   final isLauncher = args.isEmpty || args.contains('Launcher');
 
   if (isLauncher) {
+    initDatabase();
+    await AppDatabase.get();
+  }
+  if (isLauncher) {
     await initTray();
   }
 
@@ -93,11 +97,15 @@ void main(List<String> args) async {
 
   tray.setContextMenu(menu);
 
-  final shortcut = await getSetting('launcherShortcut');
+  // final shortcut = await getSetting('launcherShortcut');
 
-  final shortcutHotKey = await hotKeyFromString(shortcut!);
+  // final shortcutHotKey = await hotKeyFromString(shortcut!);
 
-  await hotKeyManager.unregisterAll();
+  // await hotKeyManager.unregisterAll();
+
+  final shortcut;
+  final shortcutHotKey;
+
   Future<void> toggleLauncher() async {
     if (await WindowManagerPlus.current.isVisible()) {
       await WindowManagerPlus.current.hide();
@@ -107,20 +115,25 @@ void main(List<String> args) async {
     }
   }
 
-  await hotKeyManager.register(
-    // launcherHotKey,
-    shortcutHotKey,
-    keyDownHandler: (hotKey) async {
-      // debugPrint('Ctrl + Shift + L pressed');
-      // debugPrint('${shortcutHotKey.modifiers}');
+  if (isLauncher) {
+    final shortcut = await getSetting('launcherShortcut');
+    final shortcutHotKey = await hotKeyFromString(shortcut!);
 
-      toggleLauncher();
-    },
-  );
+    await hotKeyManager.unregisterAll();
+
+    await hotKeyManager.register(
+      shortcutHotKey,
+      keyDownHandler: (hotKey) async {
+        toggleLauncher();
+      },
+    );
+  }
 
   final isSettings = args.contains('Setting');
 
   if (isLauncher) {
+    // WindowManagerPlus.current.invokeMethodToWindow();
+
     final launcherOptions = WindowOptions(
       size: const Size(800, 100),
       center: true,

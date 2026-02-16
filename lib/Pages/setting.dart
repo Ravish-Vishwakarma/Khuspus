@@ -7,6 +7,26 @@ import 'package:khuspus/Widgets/modelDropdown.dart';
 import 'package:khuspus/Widgets/snackbar.dart';
 import 'package:khuspus/db/queries/setting_queries.dart';
 
+// Future<dynamic> getSetting(String key) async {
+//   final windowIds = await WindowManagerPlus.getAllWindowManagerIds();
+
+//   // Find launcher window by title
+//   for (final id in windowIds) {
+//     final win = WindowManagerPlus.fromWindowId(id);
+//     final title = await win.getTitle();
+
+//     if (title == 'Launcher Window') {
+//       return await WindowManagerPlus.current.invokeMethodToWindow(
+//         id,
+//         "db_getSetting",
+//         {"key": key},
+//       );
+//     }
+//   }
+
+//   throw Exception("Launcher window not found");
+// }
+
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
 

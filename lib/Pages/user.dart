@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:khuspus/db/queries/setting_queries.dart';
-import 'package:khuspus/db/queries/transcription_queries.dart';
-import 'package:open_filex/open_filex.dart';
+// import 'package:khuspus/db/queries/transcription_queries.dart';
+// import 'package:open_filex/open_filex.dart';
+import 'package:window_manager_plus/window_manager_plus.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -14,10 +14,50 @@ class _UserPageState extends State<UserPage> {
   TextEditingController _nameController = TextEditingController();
   var wordProcessd, aiCorrections, userName;
 
+  Future<dynamic> getSettingFromLauncher(String key) async {
+    final windowIds = await WindowManagerPlus.getAllWindowManagerIds();
+
+    // Find launcher window by title
+    for (final id in windowIds) {
+      final win = WindowManagerPlus.fromWindowId(id);
+      final title = await win.getTitle();
+
+      if (title == 'Launcher Window') {
+        return await WindowManagerPlus.current.invokeMethodToWindow(
+          id,
+          "db_getSetting",
+          {"key": key},
+        );
+      }
+    }
+
+    throw Exception("Launcher window not found");
+  }
+
+  Future<dynamic> setSettingFromLauncher(String key, String val) async {
+    final windowIds = await WindowManagerPlus.getAllWindowManagerIds();
+
+    // Find launcher window by title
+    for (final id in windowIds) {
+      final win = WindowManagerPlus.fromWindowId(id);
+      final title = await win.getTitle();
+
+      if (title == 'Launcher Window') {
+        return await WindowManagerPlus.current.invokeMethodToWindow(
+          id,
+          "db_setSetting",
+          {"key": key, "value": val},
+        );
+      }
+    }
+
+    throw Exception("Launcher window not found");
+  }
+
   Future<void> getMetaData() async {
-    final word = await getSetting("wordsProcessed");
-    final ai = await getSetting("aiCorrections");
-    final name = await getSetting("userName");
+    final word = await getSettingFromLauncher("wordsProcessed");
+    final ai = await getSettingFromLauncher("aiCorrections");
+    final name = await getSettingFromLauncher("userName");
     setState(() {
       wordProcessd = word!;
       aiCorrections = ai!;
@@ -28,19 +68,19 @@ class _UserPageState extends State<UserPage> {
   var isEditing = false;
   List<Map<String, dynamic>> transcripts = [];
 
-  Future<void> _loadTranscripts() async {
-    final data = await loadTranscripts();
+  // Future<void> _loadTranscripts() async {
+  //   final data = await loadTranscripts();
 
-    if (!mounted) return;
+  //   if (!mounted) return;
 
-    setState(() {
-      transcripts = List<Map<String, dynamic>>.from(data);
-    });
-  }
+  //   setState(() {
+  //     transcripts = List<Map<String, dynamic>>.from(data);
+  //   });
+  // }
 
   _startup() async {
     await getMetaData();
-    await _loadTranscripts();
+    // await _loadTranscripts();
   }
 
   @override
@@ -51,49 +91,49 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
-    late List<DataRow> transcriptsRows = transcripts.map((trans) {
-      return DataRow(
-        cells: [
-          DataCell(
-            IconButton(
-              onPressed: () async {
-                await OpenFilex.open(trans['audioPath']);
-              },
-              icon: Icon(Icons.play_arrow_rounded),
-            ),
-          ),
-          DataCell(
-            Text(
-              trans['originalText'],
-              // softWrap: true,
-              // maxLines: null,
-              // overflow: TextOverflow.visible,
-            ),
-          ),
-          DataCell(
-            Text(
-              trans['polishedText'],
-              // softWrap: true,
-              // maxLines: null,
-              // overflow: TextOverflow.visible,
-            ),
-          ),
-          DataCell(
-            IconButton(
-              onPressed: () async {
-                await deleteTranscripts(trans['id'], trans['audioPath']);
-                setState(() {
-                  transcripts.removeWhere(
-                    (element) => element['id'] == trans['id'],
-                  );
-                });
-              },
-              icon: Icon(Icons.delete_outline_rounded, color: Colors.red),
-            ),
-          ),
-        ],
-      );
-    }).toList();
+    // late List<DataRow> transcriptsRows = transcripts.map((trans) {
+    //   return DataRow(
+    //     cells: [
+    //       DataCell(
+    //         IconButton(
+    //           onPressed: () async {
+    //             await OpenFilex.open(trans['audioPath']);
+    //           },
+    //           icon: Icon(Icons.play_arrow_rounded),
+    //         ),
+    //       ),
+    //       DataCell(
+    //         Text(
+    //           trans['originalText'],
+    //           // softWrap: true,
+    //           // maxLines: null,
+    //           // overflow: TextOverflow.visible,
+    //         ),
+    //       ),
+    //       DataCell(
+    //         Text(
+    //           trans['polishedText'],
+    //           // softWrap: true,
+    //           // maxLines: null,
+    //           // overflow: TextOverflow.visible,
+    //         ),
+    //       ),
+    //       DataCell(
+    //         IconButton(
+    //           onPressed: () async {
+    //             await deleteTranscripts(trans['id'], trans['audioPath']);
+    //             setState(() {
+    //               transcripts.removeWhere(
+    //                 (element) => element['id'] == trans['id'],
+    //               );
+    //             });
+    //           },
+    //           icon: Icon(Icons.delete_outline_rounded, color: Colors.red),
+    //         ),
+    //       ),
+    //     ],
+    //   );
+    // }).toList();
 
     return Column(
       children: [
@@ -157,7 +197,10 @@ class _UserPageState extends State<UserPage> {
                                 ? _nameController.text = userName
                                 : userName = _nameController.text;
                           });
-                          await setSetting("userName", _nameController.text);
+                          await setSettingFromLauncher(
+                            "userName",
+                            _nameController.text,
+                          );
 
                           // !isEditing ? await setUsername() : null;
                         },
@@ -228,35 +271,35 @@ class _UserPageState extends State<UserPage> {
               borderRadius: BorderRadius.circular(12),
               side: BorderSide(color: Colors.grey, width: 0.7),
             ),
-            child: DataTable(
-              columns: const <DataColumn>[
-                DataColumn(
-                  label: Text(
-                    'Voice',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Original',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'AI Result',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Action',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-              rows: transcriptsRows,
-            ),
+            // child: DataTable(
+            //   columns: const <DataColumn>[
+            //     DataColumn(
+            //       label: Text(
+            //         'Voice',
+            //         style: TextStyle(fontWeight: FontWeight.bold),
+            //       ),
+            //     ),
+            //     DataColumn(
+            //       label: Text(
+            //         'Original',
+            //         style: TextStyle(fontWeight: FontWeight.bold),
+            //       ),
+            //     ),
+            //     DataColumn(
+            //       label: Text(
+            //         'AI Result',
+            //         style: TextStyle(fontWeight: FontWeight.bold),
+            //       ),
+            //     ),
+            //     DataColumn(
+            //       label: Text(
+            //         'Action',
+            //         style: TextStyle(fontWeight: FontWeight.bold),
+            //       ),
+            //     ),
+            //   ],
+            //   rows: transcriptsRows,
+            // ),
           ),
         ),
       ],
