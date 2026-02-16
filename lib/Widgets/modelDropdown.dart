@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:khuspus/db/queries/setting_queries.dart';
+import 'package:window_manager_plus/window_manager_plus.dart';
 
 class ModelDropdown extends StatefulWidget {
   const ModelDropdown({super.key});
@@ -11,13 +11,53 @@ class ModelDropdown extends StatefulWidget {
 }
 
 class _ModelDropdownState extends State<ModelDropdown> {
+  Future<dynamic> getSettingFromLauncher(String key) async {
+    final windowIds = await WindowManagerPlus.getAllWindowManagerIds();
+
+    // Find launcher window by title
+    for (final id in windowIds) {
+      final win = WindowManagerPlus.fromWindowId(id);
+      final title = await win.getTitle();
+
+      if (title == 'Launcher Window') {
+        return await WindowManagerPlus.current.invokeMethodToWindow(
+          id,
+          "db_getSetting",
+          {"key": key},
+        );
+      }
+    }
+
+    throw Exception("Launcher window not found");
+  }
+
+  Future<dynamic> setSettingFromLauncher(String key, String val) async {
+    final windowIds = await WindowManagerPlus.getAllWindowManagerIds();
+
+    // Find launcher window by title
+    for (final id in windowIds) {
+      final win = WindowManagerPlus.fromWindowId(id);
+      final title = await win.getTitle();
+
+      if (title == 'Launcher Window') {
+        return await WindowManagerPlus.current.invokeMethodToWindow(
+          id,
+          "db_setSetting",
+          {"key": key, "value": val},
+        );
+      }
+    }
+
+    throw Exception("Launcher window not found");
+  }
+
   String? selectedModel;
   List<String> modelNames = [];
   bool isLoading = true;
   String? savedModelName;
 
   Future<void> _loadShortcut() async {
-    final value = await getSetting('aiModel');
+    final value = await getSettingFromLauncher('aiModel');
 
     if (!mounted) return;
 
@@ -123,7 +163,7 @@ class _ModelDropdownState extends State<ModelDropdown> {
         setState(() {
           selectedModel = value!;
         });
-        await setSetting("aiModel", value!);
+        await setSettingFromLauncher("aiModel", value!);
       },
     );
   }

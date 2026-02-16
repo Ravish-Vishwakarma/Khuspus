@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:khuspus/Widgets/snackbar.dart';
-import 'package:khuspus/db/queries/memory_queries.dart';
+import 'package:window_manager_plus/window_manager_plus.dart';
 
 class MemoryPage extends StatefulWidget {
   const MemoryPage({super.key});
@@ -13,11 +13,76 @@ class _MemoryPageState extends State<MemoryPage> {
   TextEditingController _before = TextEditingController();
   TextEditingController _after = TextEditingController();
 
+  Future<List<Map<String, dynamic>>> loadMemoriesFromLauncher() async {
+    final windowIds = await WindowManagerPlus.getAllWindowManagerIds();
+
+    for (final id in windowIds) {
+      final win = WindowManagerPlus.fromWindowId(id);
+      final title = await win.getTitle();
+
+      if (title == 'Launcher Window') {
+        final result = await WindowManagerPlus.current.invokeMethodToWindow(
+          id,
+          "db_loadMemories",
+          null,
+        );
+
+        return result
+            .map<Map<String, dynamic>>(
+              (e) => Map<String, dynamic>.from(e as Map),
+            )
+            .toList();
+      }
+    }
+
+    throw Exception("Launcher window not found");
+  }
+
+  Future<dynamic> deleteMemoryFromLauncher(int tid) async {
+    final windowIds = await WindowManagerPlus.getAllWindowManagerIds();
+
+    // Find launcher window by title
+    for (final id in windowIds) {
+      final win = WindowManagerPlus.fromWindowId(id);
+      final title = await win.getTitle();
+
+      if (title == 'Launcher Window') {
+        return await WindowManagerPlus.current.invokeMethodToWindow(
+          id,
+          "db_deleteMemory",
+          {"id": tid},
+        );
+      }
+    }
+
+    throw Exception("Launcher window not found");
+  }
+
+  Future<dynamic> insertMemoryFromLauncher(String before, String after) async {
+    final windowIds = await WindowManagerPlus.getAllWindowManagerIds();
+
+    // Find launcher window by title
+    for (final id in windowIds) {
+      final win = WindowManagerPlus.fromWindowId(id);
+      final title = await win.getTitle();
+
+      if (title == 'Launcher Window') {
+        return await WindowManagerPlus.current.invokeMethodToWindow(
+          id,
+          "db_insertMemory",
+          {"before": before, "after": after},
+        );
+      }
+    }
+
+    throw Exception("Launcher window not found");
+  }
+
   List<Map<String, dynamic>> memories = [];
   bool isLoading = true;
 
   Future<void> _loadMemories() async {
-    final data = await loadMemories();
+    final data = await loadMemoriesFromLauncher();
 
     if (!mounted) return;
 
@@ -49,7 +114,7 @@ class _MemoryPageState extends State<MemoryPage> {
               onPressed: () async {
                 final id = memory['id'];
 
-                await deleteMemory(id);
+                await deleteMemoryFromLauncher(id);
 
                 if (!mounted) return;
 
@@ -180,7 +245,7 @@ class _MemoryPageState extends State<MemoryPage> {
     final beforeText = _before.text;
     final afterText = _after.text;
 
-    final id = await insertMemory(before: beforeText, after: afterText);
+    final id = await insertMemoryFromLauncher(beforeText, afterText);
 
     if (!mounted) return;
 

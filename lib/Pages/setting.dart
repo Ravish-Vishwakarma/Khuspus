@@ -5,27 +5,7 @@ import 'package:khuspus/Helper/pharseShortcut.dart';
 import 'package:khuspus/Widgets/keyRecorder.dart';
 import 'package:khuspus/Widgets/modelDropdown.dart';
 import 'package:khuspus/Widgets/snackbar.dart';
-import 'package:khuspus/db/queries/setting_queries.dart';
-
-// Future<dynamic> getSetting(String key) async {
-//   final windowIds = await WindowManagerPlus.getAllWindowManagerIds();
-
-//   // Find launcher window by title
-//   for (final id in windowIds) {
-//     final win = WindowManagerPlus.fromWindowId(id);
-//     final title = await win.getTitle();
-
-//     if (title == 'Launcher Window') {
-//       return await WindowManagerPlus.current.invokeMethodToWindow(
-//         id,
-//         "db_getSetting",
-//         {"key": key},
-//       );
-//     }
-//   }
-
-//   throw Exception("Launcher window not found");
-// }
+import 'package:window_manager_plus/window_manager_plus.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -35,6 +15,46 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
+  Future<dynamic> getSettingFromLauncher(String key) async {
+    final windowIds = await WindowManagerPlus.getAllWindowManagerIds();
+
+    // Find launcher window by title
+    for (final id in windowIds) {
+      final win = WindowManagerPlus.fromWindowId(id);
+      final title = await win.getTitle();
+
+      if (title == 'Launcher Window') {
+        return await WindowManagerPlus.current.invokeMethodToWindow(
+          id,
+          "db_getSetting",
+          {"key": key},
+        );
+      }
+    }
+
+    throw Exception("Launcher window not found");
+  }
+
+  Future<dynamic> setSettingFromLauncher(String key, String val) async {
+    final windowIds = await WindowManagerPlus.getAllWindowManagerIds();
+
+    // Find launcher window by title
+    for (final id in windowIds) {
+      final win = WindowManagerPlus.fromWindowId(id);
+      final title = await win.getTitle();
+
+      if (title == 'Launcher Window') {
+        return await WindowManagerPlus.current.invokeMethodToWindow(
+          id,
+          "db_setSetting",
+          {"key": key, "value": val},
+        );
+      }
+    }
+
+    throw Exception("Launcher window not found");
+  }
+
   String ORIGINAL_PROMPT =
       '''You are an expert editor. Polish the following text to be clear, concise, and grammatically perfect.
 Do not add any commentary, just return the polished text.{{memory}}
@@ -50,7 +70,7 @@ If the user's text contains the keyword 'SYSTEM', treat the words following 'SYS
   bool autoPolish = false;
 
   Future<void> getAutoRefine() async {
-    final value = await getSetting("autoRefine");
+    final value = await getSettingFromLauncher("autoRefine");
     if (value == "true") {
       setState(() {
         autoPolish = true;
@@ -64,7 +84,7 @@ If the user's text contains the keyword 'SYSTEM', treat the words following 'SYS
     setState(() {
       autoPolish = val;
     });
-    await setSetting("autoRefine", "$val");
+    await setSettingFromLauncher("autoRefine", "$val");
   }
 
   Future<List<String>> getOllamaModelNames() async {
@@ -104,7 +124,7 @@ If the user's text contains the keyword 'SYSTEM', treat the words following 'SYS
   }
 
   Future<void> _loadPrompt() async {
-    final value = await getSetting('polish_prompt');
+    final value = await getSettingFromLauncher('polish_prompt');
 
     if (!mounted) return;
 
@@ -114,7 +134,7 @@ If the user's text contains the keyword 'SYSTEM', treat the words following 'SYS
   }
 
   Future<void> _loadShortcut() async {
-    final value = await getSetting('launcherShortcut');
+    final value = await getSettingFromLauncher('launcherShortcut');
 
     if (!mounted) return;
 
@@ -177,7 +197,10 @@ If the user's text contains the keyword 'SYSTEM', treat the words following 'SYS
                             isRecordingKeys = false;
                             return;
                           } else {
-                            await setSetting("launcherShortcut", shortcut);
+                            await setSettingFromLauncher(
+                              "launcherShortcut",
+                              shortcut,
+                            );
                             setState(() {
                               isRecordingKeys = false;
                               shortcutKey = shortcut;
@@ -254,7 +277,10 @@ If the user's text contains the keyword 'SYSTEM', treat the words following 'SYS
                     InkWell(
                       borderRadius: BorderRadius.circular(12),
                       onTap: () async {
-                        await setSetting("polish_prompt", _prompt.text);
+                        await setSettingFromLauncher(
+                          "polish_prompt",
+                          _prompt.text,
+                        );
                         showSnackBar(context, "Saved Successfully", "");
                       },
                       child: Padding(

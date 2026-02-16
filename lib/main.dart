@@ -103,8 +103,8 @@ void main(List<String> args) async {
 
   // await hotKeyManager.unregisterAll();
 
-  final shortcut;
-  final shortcutHotKey;
+  // final shortcut;
+  // final shortcutHotKey;
 
   Future<void> toggleLauncher() async {
     if (await WindowManagerPlus.current.isVisible()) {

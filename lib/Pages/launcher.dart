@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:khuspus/Helper/sendAIRequest.dart';
+import 'package:khuspus/db/queries/memory_queries.dart';
 import 'package:khuspus/db/queries/setting_queries.dart';
 import 'package:khuspus/db/queries/transcription_queries.dart';
 import 'package:record/record.dart';
@@ -69,6 +70,20 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
       return await deleteTranscripts(id, path);
     }
 
+    if (eventName == "db_loadMemories") {
+      return await loadMemories();
+    }
+
+    if (eventName == "db_deleteMemory") {
+      final id = arguments["id"];
+      return await deleteMemory(id);
+    }
+
+    if (eventName == "db_insertMemory") {
+      final before = arguments["before"];
+      final after = arguments["after"];
+      return await insertMemory(before: before, after: after);
+    }
     return null;
   }
 
