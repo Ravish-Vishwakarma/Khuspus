@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-// import 'package:khuspus/db/queries/transcription_queries.dart';
-// import 'package:open_filex/open_filex.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:window_manager_plus/window_manager_plus.dart';
 
 class UserPage extends StatefulWidget {
@@ -54,6 +53,51 @@ class _UserPageState extends State<UserPage> {
     throw Exception("Launcher window not found");
   }
 
+  Future<dynamic> deleteTranscriptsFromLauncher(int tid, String path) async {
+    final windowIds = await WindowManagerPlus.getAllWindowManagerIds();
+
+    // Find launcher window by title
+    for (final id in windowIds) {
+      final win = WindowManagerPlus.fromWindowId(id);
+      final title = await win.getTitle();
+
+      if (title == 'Launcher Window') {
+        return await WindowManagerPlus.current.invokeMethodToWindow(
+          id,
+          "db_deleteTranscripts",
+          {"id": tid, "path": path},
+        );
+      }
+    }
+
+    throw Exception("Launcher window not found");
+  }
+
+  Future<List<Map<String, dynamic>>> loadTranscriptsFromLauncher() async {
+    final windowIds = await WindowManagerPlus.getAllWindowManagerIds();
+
+    for (final id in windowIds) {
+      final win = WindowManagerPlus.fromWindowId(id);
+      final title = await win.getTitle();
+
+      if (title == 'Launcher Window') {
+        final result = await WindowManagerPlus.current.invokeMethodToWindow(
+          id,
+          "db_loadTranscripts",
+          null,
+        );
+
+        return result
+            .map<Map<String, dynamic>>(
+              (e) => Map<String, dynamic>.from(e as Map),
+            )
+            .toList();
+      }
+    }
+
+    throw Exception("Launcher window not found");
+  }
+
   Future<void> getMetaData() async {
     final word = await getSettingFromLauncher("wordsProcessed");
     final ai = await getSettingFromLauncher("aiCorrections");
@@ -68,19 +112,19 @@ class _UserPageState extends State<UserPage> {
   var isEditing = false;
   List<Map<String, dynamic>> transcripts = [];
 
-  // Future<void> _loadTranscripts() async {
-  //   final data = await loadTranscripts();
+  Future<void> _loadTranscripts() async {
+    final data = await loadTranscriptsFromLauncher();
 
-  //   if (!mounted) return;
+    if (!mounted) return;
 
-  //   setState(() {
-  //     transcripts = List<Map<String, dynamic>>.from(data);
-  //   });
-  // }
+    setState(() {
+      transcripts = data;
+    });
+  }
 
   _startup() async {
     await getMetaData();
-    // await _loadTranscripts();
+    await _loadTranscripts();
   }
 
   @override
@@ -91,49 +135,52 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
-    // late List<DataRow> transcriptsRows = transcripts.map((trans) {
-    //   return DataRow(
-    //     cells: [
-    //       DataCell(
-    //         IconButton(
-    //           onPressed: () async {
-    //             await OpenFilex.open(trans['audioPath']);
-    //           },
-    //           icon: Icon(Icons.play_arrow_rounded),
-    //         ),
-    //       ),
-    //       DataCell(
-    //         Text(
-    //           trans['originalText'],
-    //           // softWrap: true,
-    //           // maxLines: null,
-    //           // overflow: TextOverflow.visible,
-    //         ),
-    //       ),
-    //       DataCell(
-    //         Text(
-    //           trans['polishedText'],
-    //           // softWrap: true,
-    //           // maxLines: null,
-    //           // overflow: TextOverflow.visible,
-    //         ),
-    //       ),
-    //       DataCell(
-    //         IconButton(
-    //           onPressed: () async {
-    //             await deleteTranscripts(trans['id'], trans['audioPath']);
-    //             setState(() {
-    //               transcripts.removeWhere(
-    //                 (element) => element['id'] == trans['id'],
-    //               );
-    //             });
-    //           },
-    //           icon: Icon(Icons.delete_outline_rounded, color: Colors.red),
-    //         ),
-    //       ),
-    //     ],
-    //   );
-    // }).toList();
+    late List<DataRow> transcriptsRows = transcripts.map((trans) {
+      return DataRow(
+        cells: [
+          DataCell(
+            IconButton(
+              onPressed: () async {
+                await OpenFilex.open(trans['audioPath']);
+              },
+              icon: Icon(Icons.play_arrow_rounded),
+            ),
+          ),
+          DataCell(
+            Text(
+              trans['originalText'],
+              // softWrap: true,
+              // maxLines: null,
+              // overflow: TextOverflow.visible,
+            ),
+          ),
+          DataCell(
+            Text(
+              trans['polishedText'],
+              // softWrap: true,
+              // maxLines: null,
+              // overflow: TextOverflow.visible,
+            ),
+          ),
+          DataCell(
+            IconButton(
+              onPressed: () async {
+                await deleteTranscriptsFromLauncher(
+                  trans['id'],
+                  trans['audioPath'],
+                );
+                setState(() {
+                  transcripts.removeWhere(
+                    (element) => element['id'] == trans['id'],
+                  );
+                });
+              },
+              icon: Icon(Icons.delete_outline_rounded, color: Colors.red),
+            ),
+          ),
+        ],
+      );
+    }).toList();
 
     return Column(
       children: [
@@ -271,35 +318,35 @@ class _UserPageState extends State<UserPage> {
               borderRadius: BorderRadius.circular(12),
               side: BorderSide(color: Colors.grey, width: 0.7),
             ),
-            // child: DataTable(
-            //   columns: const <DataColumn>[
-            //     DataColumn(
-            //       label: Text(
-            //         'Voice',
-            //         style: TextStyle(fontWeight: FontWeight.bold),
-            //       ),
-            //     ),
-            //     DataColumn(
-            //       label: Text(
-            //         'Original',
-            //         style: TextStyle(fontWeight: FontWeight.bold),
-            //       ),
-            //     ),
-            //     DataColumn(
-            //       label: Text(
-            //         'AI Result',
-            //         style: TextStyle(fontWeight: FontWeight.bold),
-            //       ),
-            //     ),
-            //     DataColumn(
-            //       label: Text(
-            //         'Action',
-            //         style: TextStyle(fontWeight: FontWeight.bold),
-            //       ),
-            //     ),
-            //   ],
-            //   rows: transcriptsRows,
-            // ),
+            child: DataTable(
+              columns: const <DataColumn>[
+                DataColumn(
+                  label: Text(
+                    'Voice',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Original',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'AI Result',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Action',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+              rows: transcriptsRows,
+            ),
           ),
         ),
       ],

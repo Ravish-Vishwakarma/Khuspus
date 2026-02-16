@@ -59,6 +59,16 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
       return await setSetting(key, value);
     }
 
+    if (eventName == "db_loadTranscripts") {
+      return await loadTranscripts();
+    }
+
+    if (eventName == "db_deleteTranscripts") {
+      final id = arguments["id"];
+      final path = arguments["path"];
+      return await deleteTranscripts(id, path);
+    }
+
     return null;
   }
 
