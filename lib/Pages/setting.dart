@@ -345,6 +345,8 @@ TRANSCRIPTION:
                 ],
               ),
             ),
+            SizedBox(height: 20),
+            Center(child: Text("Made With Love By Ravish ❤️")),
           ],
         ),
       ),

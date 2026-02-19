@@ -144,6 +144,7 @@ class _UserPageState extends State<UserPage> {
         cells: [
           DataCell(
             IconButton(
+              tooltip: "Play Voice",
               onPressed: () async {
                 await OpenFilex.open(trans['audioPath']);
               },
@@ -158,8 +159,8 @@ class _UserPageState extends State<UserPage> {
               },
               child: Text(
                 trans['originalText'],
-                // softWrap: true,
-                // maxLines: null,
+                softWrap: true,
+                maxLines: null,
                 // overflow: TextOverflow.visible,
               ),
             ),
@@ -172,14 +173,15 @@ class _UserPageState extends State<UserPage> {
               },
               child: Text(
                 trans['polishedText'],
-                // softWrap: true,
-                // maxLines: null,
+                softWrap: true,
+                maxLines: null,
                 // overflow: TextOverflow.visible,
               ),
             ),
           ),
           DataCell(
             IconButton(
+              tooltip: "Delete",
               onPressed: () async {
                 await deleteTranscriptsFromLauncher(
                   trans['id'],
@@ -336,6 +338,8 @@ class _UserPageState extends State<UserPage> {
                 side: BorderSide(color: Colors.grey, width: 0.7),
               ),
               child: DataTable(
+                dataRowMinHeight: 5,
+                dataRowMaxHeight: double.infinity,
                 columns: const <DataColumn>[
                   DataColumn(
                     label: Text(

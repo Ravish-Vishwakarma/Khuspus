@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   record_windows
   screen_retriever_windows
   system_tray
+  url_launcher_windows
   window_manager_plus
 )
 

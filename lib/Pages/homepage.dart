@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:khuspus/Pages/memory.dart';
 import 'package:khuspus/Pages/setting.dart';
 import 'package:khuspus/Pages/user.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:window_manager_plus/window_manager_plus.dart';
 
 class HomePage extends StatefulWidget {
@@ -82,7 +83,17 @@ class _HomePageState extends State<HomePage> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 IconButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    final url = Uri.parse(
+                                      'https://ravishvish.gumroad.com/coffee',
+                                    );
+                                    if (await canLaunchUrl(url)) {
+                                      await launchUrl(
+                                        url,
+                                        mode: LaunchMode.externalApplication,
+                                      );
+                                    }
+                                  },
                                   tooltip: "Support",
                                   icon: Icon(
                                     Icons.favorite_rounded,
