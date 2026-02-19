@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_fields, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:khuspus/Widgets/snackbar.dart';
 import 'package:window_manager_plus/window_manager_plus.dart';

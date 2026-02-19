@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_string_interpolations, deprecated_member_use
+
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -160,8 +162,8 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
 
   // ---------------------------------------- POLISHING USING AI ---------------------------------------- //
   Future<void> _handlePolish() async {
-    var base_prompt = await getSetting("polish_prompt");
-    base_prompt = base_prompt.toString();
+    var basePrompt = await getSetting("polish_prompt");
+    basePrompt = basePrompt.toString();
 
     if (textController.text.trim().isEmpty) return;
 
@@ -171,11 +173,10 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
 
     final memories = await getMemeoryList();
     final transcription = textController.text;
-    base_prompt = base_prompt.replaceAll("{{memory}}", "$memories");
-    base_prompt = base_prompt.replaceAll("{{transcription}}", "$transcription");
+    basePrompt = basePrompt.replaceAll("{{memory}}", "$memories");
+    basePrompt = basePrompt.replaceAll("{{transcription}}", "$transcription");
     // Simulate AI polishing
-    print(base_prompt);
-    var aiResponse = await sendAIRequest(base_prompt);
+    var aiResponse = await sendAIRequest(basePrompt);
     if (mounted) {
       setState(() {
         textController.text = aiResponse;
@@ -214,7 +215,6 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
       const RecordConfig(encoder: AudioEncoder.wav),
       path: filePath,
     );
-    print('Recording started...');
     setState(() {
       isVoiceMode = true;
     });
@@ -225,7 +225,6 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
 
   Future<String?> stopRecording() async {
     final recordedPath = await recorder.stop();
-    print('Recording stopped: $recordedPath');
     setState(() {
       isVoiceMode = false;
       isProcessing = true;
@@ -252,7 +251,6 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
       isPolishing = false;
       textController.text = cleanedTranscription;
     });
-    print("$cleanedTranscription");
     rowID = await insertTranscript(
       originalText: cleanedTranscription,
       polishedText: "empty",

@@ -1,4 +1,8 @@
+// ignore_for_file: prefer_typing_uninitialized_variables
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:khuspus/Widgets/snackbar.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:window_manager_plus/window_manager_plus.dart';
 
@@ -147,19 +151,31 @@ class _UserPageState extends State<UserPage> {
             ),
           ),
           DataCell(
-            Text(
-              trans['originalText'],
-              // softWrap: true,
-              // maxLines: null,
-              // overflow: TextOverflow.visible,
+            InkWell(
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: trans['originalText']));
+                showSnackBar(context, "Copied", "basic");
+              },
+              child: Text(
+                trans['originalText'],
+                // softWrap: true,
+                // maxLines: null,
+                // overflow: TextOverflow.visible,
+              ),
             ),
           ),
           DataCell(
-            Text(
-              trans['polishedText'],
-              // softWrap: true,
-              // maxLines: null,
-              // overflow: TextOverflow.visible,
+            InkWell(
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: trans['polishedText']));
+                showSnackBar(context, "Copied", "basic");
+              },
+              child: Text(
+                trans['polishedText'],
+                // softWrap: true,
+                // maxLines: null,
+                // overflow: TextOverflow.visible,
+              ),
             ),
           ),
           DataCell(

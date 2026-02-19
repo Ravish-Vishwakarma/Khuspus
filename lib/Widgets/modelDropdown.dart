@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -78,7 +80,6 @@ class _ModelDropdownState extends State<ModelDropdown> {
       final result = await Process.run('ollama', ['list']);
 
       if (result.exitCode != 0) {
-        print('Error: ${result.stderr}');
         return [];
       }
 
@@ -101,10 +102,8 @@ class _ModelDropdownState extends State<ModelDropdown> {
           modelNames.add(parts[0]); // only take the name
         }
       }
-      print(modelNames);
       return modelNames;
     } catch (e) {
-      print('Exception: $e');
       return [];
     }
   }

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:khuspus/Helper/pharseShortcut.dart';
 import 'package:khuspus/Pages/homepage.dart';
@@ -117,7 +116,7 @@ void main(List<String> args) async {
 
   if (isLauncher) {
     final shortcut = await getSetting('launcherShortcut');
-    final shortcutHotKey = await hotKeyFromString(shortcut!);
+    final shortcutHotKey = hotKeyFromString(shortcut!);
 
     await hotKeyManager.unregisterAll();
 

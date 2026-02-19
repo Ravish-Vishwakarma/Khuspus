@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -104,7 +106,6 @@ TRANSCRIPTION:
       final result = await Process.run('ollama', ['list']);
 
       if (result.exitCode != 0) {
-        print('Error: ${result.stderr}');
         return [];
       }
 
@@ -127,10 +128,8 @@ TRANSCRIPTION:
           modelNames.add(parts[0]); // only take the name
         }
       }
-      print(modelNames);
       return modelNames;
     } catch (e) {
-      print('Exception: $e');
       return [];
     }
   }
@@ -197,10 +196,8 @@ TRANSCRIPTION:
                       width: 250,
                       child: ShortcutRecorder(
                         onSave: (shortcut) async {
-                          print("Shortcut saved: $shortcut");
                           final result = validateShortcut(shortcut);
                           if (!result.isValid) {
-                            print(result.reason);
                             showSnackBar(
                               context,
                               "Invalid Combination",
@@ -251,7 +248,6 @@ TRANSCRIPTION:
                 value: autoPolish,
                 onChanged: (value) {
                   setAutoRefineValue(value);
-                  print(value);
                 },
               ),
             ],
