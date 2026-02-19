@@ -159,11 +159,13 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  _selectedIndex == 0
-                      ? UserPage()
-                      : _selectedIndex == 1
-                      ? MemoryPage()
-                      : SettingPage(),
+                  Expanded(
+                    child: _selectedIndex == 0
+                        ? UserPage()
+                        : _selectedIndex == 1
+                        ? MemoryPage()
+                        : SettingPage(),
+                  ),
                 ],
               ),
             ),

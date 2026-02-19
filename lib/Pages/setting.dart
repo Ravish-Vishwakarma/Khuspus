@@ -169,182 +169,184 @@ TRANSCRIPTION:
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("AI Model (Ollama): ", style: TextStyle(fontSize: 14)),
-              SizedBox(width: 200, height: 40, child: ModelDropdown()),
-            ],
-          ),
-          SizedBox(height: 20),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("AI Model (Ollama): ", style: TextStyle(fontSize: 14)),
+                SizedBox(width: 200, height: 40, child: ModelDropdown()),
+              ],
+            ),
+            SizedBox(height: 20),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Launcher Shortcut (Require App Restart To Use New Shortcut): ",
-              ),
-              Row(
-                children: [
-                  if (isRecordingKeys)
-                    SizedBox(
-                      width: 250,
-                      child: ShortcutRecorder(
-                        onSave: (shortcut) async {
-                          final result = validateShortcut(shortcut);
-                          if (!result.isValid) {
-                            showSnackBar(
-                              context,
-                              "Invalid Combination",
-                              "error",
-                            );
-                            isRecordingKeys = false;
-                            return;
-                          } else {
-                            await setSettingFromLauncher(
-                              "launcherShortcut",
-                              shortcut,
-                            );
-                            setState(() {
-                              isRecordingKeys = false;
-                              shortcutKey = shortcut;
-                            });
-                          }
-                        },
-                      ),
-                    )
-                  else
-                    Text(shortcutKey),
-                  SizedBox(width: 5),
-
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        isRecordingKeys = !isRecordingKeys;
-                      });
-                    },
-                    iconSize: 18,
-                    icon: Icon(
-                      isRecordingKeys ? Icons.close : Icons.edit_outlined,
-                    ),
-                    constraints: BoxConstraints(),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Auto Polish (AI)"),
-              Switch(
-                value: autoPolish,
-                onChanged: (value) {
-                  setAutoRefineValue(value);
-                },
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("AI Polishing Prompt"),
-              Material(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
-                child: Row(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Launcher Shortcut (Require App Restart To Use New Shortcut): ",
+                ),
+                Row(
                   children: [
-                    InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () {
+                    if (isRecordingKeys)
+                      SizedBox(
+                        width: 250,
+                        child: ShortcutRecorder(
+                          onSave: (shortcut) async {
+                            final result = validateShortcut(shortcut);
+                            if (!result.isValid) {
+                              showSnackBar(
+                                context,
+                                "Invalid Combination",
+                                "error",
+                              );
+                              isRecordingKeys = false;
+                              return;
+                            } else {
+                              await setSettingFromLauncher(
+                                "launcherShortcut",
+                                shortcut,
+                              );
+                              setState(() {
+                                isRecordingKeys = false;
+                                shortcutKey = shortcut;
+                              });
+                            }
+                          },
+                        ),
+                      )
+                    else
+                      Text(shortcutKey),
+                    SizedBox(width: 5),
+
+                    IconButton(
+                      onPressed: () {
                         setState(() {
-                          _prompt.text = ORIGINAL_PROMPT;
+                          isRecordingKeys = !isRecordingKeys;
                         });
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            Icon(Icons.replay_rounded),
-                            SizedBox(width: 4),
-                            Text("Reset"),
-                          ],
-                        ),
+                      iconSize: 18,
+                      icon: Icon(
+                        isRecordingKeys ? Icons.close : Icons.edit_outlined,
                       ),
-                    ),
-                    SizedBox(width: 10),
-                    InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () async {
-                        await setSettingFromLauncher(
-                          "polish_prompt",
-                          _prompt.text,
-                        );
-                        showSnackBar(context, "Saved Successfully", "");
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            Icon(Icons.save_rounded),
-                            SizedBox(width: 4),
-                            Text("Save"),
-                          ],
-                        ),
-                      ),
+                      constraints: BoxConstraints(),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 5),
-          TextField(
-            controller: _prompt,
-            minLines: 1, // initial height
-            maxLines: null,
-            style: TextStyle(
-              fontSize: 15, // set the text size here
-              color: Colors.black, // optional text color
-            ),
-            decoration: InputDecoration(
-              labelText: "Prompt",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-          SizedBox(height: 5),
-          RichText(
-            text: TextSpan(
-              style: TextStyle(color: Colors.grey, fontSize: 10),
-              children: const [
-                TextSpan(text: 'Use '),
-                TextSpan(
-                  text: '{{memory}}',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextSpan(
-                  text: ' to insert your custom spelling corrections and ',
-                ),
-                TextSpan(
-                  text: '{{transcription}}',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextSpan(text: ' to insert the text to be polished.'),
               ],
             ),
-          ),
-        ],
+            SizedBox(height: 20),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Auto Polish (AI)"),
+                Switch(
+                  value: autoPolish,
+                  onChanged: (value) {
+                    setAutoRefineValue(value);
+                  },
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("AI Polishing Prompt"),
+                Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Row(
+                    children: [
+                      InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {
+                          setState(() {
+                            _prompt.text = ORIGINAL_PROMPT;
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Icon(Icons.replay_rounded),
+                              SizedBox(width: 4),
+                              Text("Reset"),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () async {
+                          await setSettingFromLauncher(
+                            "polish_prompt",
+                            _prompt.text,
+                          );
+                          showSnackBar(context, "Saved Successfully", "");
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Icon(Icons.save_rounded),
+                              SizedBox(width: 4),
+                              Text("Save"),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 5),
+            TextField(
+              controller: _prompt,
+              minLines: 1, // initial height
+              maxLines: null,
+              style: TextStyle(
+                fontSize: 15, // set the text size here
+                color: Colors.black, // optional text color
+              ),
+              decoration: InputDecoration(
+                labelText: "Prompt",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            SizedBox(height: 5),
+            RichText(
+              text: TextSpan(
+                style: TextStyle(color: Colors.grey, fontSize: 10),
+                children: const [
+                  TextSpan(text: 'Use '),
+                  TextSpan(
+                    text: '{{memory}}',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: ' to insert your custom spelling corrections and ',
+                  ),
+                  TextSpan(
+                    text: '{{transcription}}',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(text: ' to insert the text to be polished.'),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

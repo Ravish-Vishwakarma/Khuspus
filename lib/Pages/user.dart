@@ -198,174 +198,176 @@ class _UserPageState extends State<UserPage> {
       );
     }).toList();
 
-    return Column(
-      children: [
-        SizedBox(
-          height: 130,
-          width: double.infinity,
-          child: Card(
-            elevation: 0,
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: Colors.grey, width: 0.7),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      isEditing
-                          ? SizedBox(
-                              width: 240,
-                              height: 30,
-                              child: TextField(
-                                controller: _nameController,
-                                style: TextStyle(fontSize: 14), // small text
-                                textAlign: TextAlign.left,
-                                decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.all(
-                                    4,
-                                  ), // shrink internal padding
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      6,
-                                    ), // optional rounding
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          SizedBox(
+            height: 130,
+            width: double.infinity,
+            child: Card(
+              elevation: 0,
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: Colors.grey, width: 0.7),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        isEditing
+                            ? SizedBox(
+                                width: 240,
+                                height: 30,
+                                child: TextField(
+                                  controller: _nameController,
+                                  style: TextStyle(fontSize: 14), // small text
+                                  textAlign: TextAlign.left,
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.all(
+                                      4,
+                                    ), // shrink internal padding
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        6,
+                                      ), // optional rounding
+                                    ),
                                   ),
                                 ),
+                              )
+                            : Text(
+                                "Hi, $userName",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                ),
                               ),
-                            )
-                          : Text(
-                              "Hi, $userName",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 18,
-                              ),
-                            ),
-                      SizedBox(width: 5),
-                      IconButton(
-                        icon: Icon(
-                          isEditing ? Icons.save : Icons.edit_outlined,
-                        ),
-                        iconSize: 18,
-                        padding: EdgeInsets.all(4),
-                        constraints: BoxConstraints(),
-                        onPressed: () async {
-                          setState(() {
-                            isEditing = !isEditing;
-                            isEditing
-                                ? _nameController.text = userName
-                                : userName = _nameController.text;
-                          });
-                          await setSettingFromLauncher(
-                            "userName",
-                            _nameController.text,
-                          );
+                        SizedBox(width: 5),
+                        IconButton(
+                          icon: Icon(
+                            isEditing ? Icons.save : Icons.edit_outlined,
+                          ),
+                          iconSize: 18,
+                          padding: EdgeInsets.all(4),
+                          constraints: BoxConstraints(),
+                          onPressed: () async {
+                            setState(() {
+                              isEditing = !isEditing;
+                              isEditing
+                                  ? _nameController.text = userName
+                                  : userName = _nameController.text;
+                            });
+                            await setSettingFromLauncher(
+                              "userName",
+                              _nameController.text,
+                            );
 
-                          // !isEditing ? await setUsername() : null;
-                        },
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      RichText(
-                        text: TextSpan(
-                          style: DefaultTextStyle.of(context).style,
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: 'Word processes \n',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 13,
-                              ),
-                            ),
-                            TextSpan(
-                              text: wordProcessd,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                            // !isEditing ? await setUsername() : null;
+                          },
                         ),
-                      ),
-                      RichText(
-                        textAlign: TextAlign.right,
-                        text: TextSpan(
-                          style: DefaultTextStyle.of(context).style,
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: 'AI corrections\n',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 13,
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            style: DefaultTextStyle.of(context).style,
+                            children: <TextSpan>[
+                              TextSpan(
+                                text: 'Word processes \n',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 13,
+                                ),
                               ),
-                            ),
-                            TextSpan(
-                              text: aiCorrections,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                              TextSpan(
+                                text: wordProcessd,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        RichText(
+                          textAlign: TextAlign.right,
+                          text: TextSpan(
+                            style: DefaultTextStyle.of(context).style,
+                            children: <TextSpan>[
+                              TextSpan(
+                                text: 'AI corrections\n',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              TextSpan(
+                                text: aiCorrections,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        SizedBox(
-          width: double.infinity,
-          child: Card(
-            elevation: 0,
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: Colors.grey, width: 0.7),
-            ),
-            child: DataTable(
-              columns: const <DataColumn>[
-                DataColumn(
-                  label: Text(
-                    'Voice',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+          SizedBox(
+            width: double.infinity,
+            child: Card(
+              elevation: 0,
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: Colors.grey, width: 0.7),
+              ),
+              child: DataTable(
+                columns: const <DataColumn>[
+                  DataColumn(
+                    label: Text(
+                      'Voice',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Original',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Original',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'AI Result',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'AI Result',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Action',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Action',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-              ],
-              rows: transcriptsRows,
+                ],
+                rows: transcriptsRows,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

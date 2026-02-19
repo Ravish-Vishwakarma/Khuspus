@@ -133,108 +133,110 @@ class _MemoryPageState extends State<MemoryPage> {
         ],
       );
     }).toList();
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Padding(
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _before,
-                    decoration: InputDecoration(
-                      hint: Text("Before"),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _before,
+                      decoration: InputDecoration(
+                        hint: Text("Before"),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(
-                    Icons.arrow_forward_rounded,
-                    color: Colors.grey,
-                    size: 20,
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(
+                      Icons.arrow_forward_rounded,
+                      color: Colors.grey,
+                      size: 20,
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: TextFormField(
-                    controller: _after,
-                    decoration: InputDecoration(
-                      hint: Text("After"),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _after,
+                      decoration: InputDecoration(
+                        hint: Text("After"),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    addMemory();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      addMemory();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      minimumSize: Size(65, 50),
+                      padding: EdgeInsets.zero,
                     ),
-                    minimumSize: Size(65, 50),
-                    padding: EdgeInsets.zero,
+                    child: Text(
+                      "Add",
+                      style: TextStyle(color: Colors.white, fontSize: 15),
+                    ),
                   ),
-                  child: Text(
-                    "Add",
-                    style: TextStyle(color: Colors.white, fontSize: 15),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
 
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: MediaQuery.of(context).size.width,
-                ),
-                child: DataTable(
-                  columns: const <DataColumn>[
-                    DataColumn(
-                      label: Text(
-                        'Before',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minWidth: MediaQuery.of(context).size.width,
+                  ),
+                  child: DataTable(
+                    columns: const <DataColumn>[
+                      DataColumn(
+                        label: Text(
+                          'Before',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'After',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      DataColumn(
+                        label: Text(
+                          'After',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Action',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      DataColumn(
+                        label: Text(
+                          'Action',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                  ],
-                  rows: memoryRows,
+                    ],
+                    rows: memoryRows,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
