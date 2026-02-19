@@ -160,15 +160,22 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
 
   // ---------------------------------------- POLISHING USING AI ---------------------------------------- //
   Future<void> _handlePolish() async {
+    var base_prompt = await getSetting("polish_prompt");
+    base_prompt = base_prompt.toString();
+
     if (textController.text.trim().isEmpty) return;
 
     setState(() {
       isPolishing = true;
     });
 
+    final memories = await getMemeoryList();
+    final transcription = textController.text;
+    base_prompt = base_prompt.replaceAll("{{memory}}", "$memories");
+    base_prompt = base_prompt.replaceAll("{{transcription}}", "$transcription");
     // Simulate AI polishing
-    var aiResponse = await sendAIRequest(textController.text);
-
+    print(base_prompt);
+    var aiResponse = await sendAIRequest(base_prompt);
     if (mounted) {
       setState(() {
         textController.text = aiResponse;
@@ -374,7 +381,7 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
           ],
         ),
         Expanded(
-          child: Container(
+          child: SizedBox(
             height: 27,
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,

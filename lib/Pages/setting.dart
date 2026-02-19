@@ -56,13 +56,25 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   String ORIGINAL_PROMPT =
-      '''You are an expert editor. Polish the following text to be clear, concise, and grammatically perfect.
-Do not add any commentary, just return the polished text.{{memory}}
+      '''You are an intelligent text refinement assistant inside a voice-to-text application.
 
-Original text: "{{transcription}}"
+Your job is to:
+1. Detect whether the transcription contains a request to transform or format the text (e.g., summarize, rewrite, convert to markdown, make bullet points, turn into email, etc.).
+2. If such a request exists anywhere in the transcription, treat it as an instruction and perform that transformation.
+3. Remove filler words and speech artifacts.
+4. Correct grammar and spelling.
+5. Apply user preferences from MEMORY.
 
-If the user's text contains the keyword 'SYSTEM', treat the words following 'SYSTEM' as a direct command and perform that action on the text instead of polishing.
-''';
+Important:
+- If a transformation request is present, do not include that request in the output.
+- Only return the transformed result.
+- If no transformation is requested, return a clean, polished version of the text.
+
+MEMORY:  
+{{memory}}
+
+TRANSCRIPTION:  
+{{transcription}}''';
 
   TextEditingController _prompt = TextEditingController();
   String shortcutKey = "Something Went Wrong";

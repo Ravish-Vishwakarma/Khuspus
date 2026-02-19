@@ -20,3 +20,13 @@ Future<void> deleteMemory(int id) async {
 
   await db.delete('memories', where: 'id = ?', whereArgs: [id]);
 }
+
+getMemeoryList() async {
+  var listofmem = "";
+  final memories = await loadMemories();
+  for (final mem in memories) {
+    listofmem += "${mem["before"]} = ${mem["after"]}\n";
+  }
+
+  return listofmem;
+}
