@@ -170,10 +170,17 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
     setState(() {
       isPolishing = true;
     });
+    // final memories = await getMemeoryList();
+    // basePrompt = basePrompt!.replaceAll("{{memory}}", "$memories");
+    var transcription = textController.text;
 
-    final memories = await getMemeoryList();
-    final transcription = textController.text;
-    basePrompt = basePrompt.replaceAll("{{memory}}", "$memories");
+    final memories = await loadMemories();
+    for (final memory in memories) {
+      transcription = transcription.replaceAll(
+        "${memory["before"]}",
+        "${memory["after"]}",
+      );
+    }
     basePrompt = basePrompt.replaceAll("{{transcription}}", "$transcription");
     // Simulate AI polishing
     var aiResponse = await sendAIRequest(basePrompt);
@@ -264,6 +271,10 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
       "wordsProcessed",
       "${int.parse(oldWordCount.toString()) + wordCount(cleanedTranscription)}",
     );
+    final isautopolish = await getSetting("autoRefine");
+    if (isautopolish == "true") {
+      _handlePolish();
+    }
   }
 
   @override

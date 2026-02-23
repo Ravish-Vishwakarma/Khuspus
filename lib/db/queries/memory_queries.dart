@@ -27,6 +27,5 @@ getMemeoryList() async {
   for (final mem in memories) {
     listofmem += "${mem["before"]} = ${mem["after"]}\n";
   }
-
   return listofmem;
 }

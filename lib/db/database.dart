@@ -56,21 +56,32 @@ class AppDatabase {
   // ------------------------
   static Future<void> _seedDefaultSettings(Database db) async {
     const defaults = {
-      'autoRefine': 'false',
-      'aiModel': 'gemma3:1b',
       'transcriptionModel': 'small.en',
-      'wordsProcessed': '78',
-      'aiCorrections': '1',
-      'userName': 'Ravish Vishwakarma',
-      'launcherShortcut': 'Shift+Meta+F24',
-      'polish_prompt': '''
-You are an expert editor. Polish the following text to be clear, concise, and grammatically perfect.
-Do not add any commentary, just return the polished text.{{memory}}
+      'aiModel': 'gemma3:1b',
+      'launcherShortcut': 'Shift+Ctrl+L',
+      'autoRefine': 'false',
+      'wordsProcessed': '0',
+      'aiCorrections': '0',
+      'userName': 'UserName',
+      'polish_prompt':
+          '''You are an intelligent text refinement assistant inside a voice-to-text application.
 
-Original text: "{{transcription}}"
+Your job is to:
 
-If the user's text contains the keyword 'SYSTEM', treat the words following 'SYSTEM' as a direct command and perform that action on the text instead of polishing.
-''',
+1. Detect whether the transcription contains a request to transform or format the text (e.g., summarize, rewrite formally, make it shorter, convert to markdown, create bullet points, turn into an email, etc.).
+2. If a transformation request exists anywhere in the transcription, treat it as an instruction and perform that transformation.
+3. Remove filler words, repetitions, and speech artifacts.
+4. Correct grammar and spelling.
+5. Improve clarity and structure.
+
+Rules:
+- If a transformation request is present, do not include the instruction text in the output.
+- Only return the final processed result.
+- Do not add commentary or explanations.
+- If no transformation is requested, return a clean, polished version of the text.
+
+TRANSCRIPTION:
+"{{transcription}}"''',
     };
 
     for (final entry in defaults.entries) {
