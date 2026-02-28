@@ -37,6 +37,7 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
   void initState() {
     super.initState();
     WindowManagerPlus.current.addListener(this);
+    _loadDefaultMic();
   }
 
   @override
@@ -219,7 +220,7 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
     currentRecordingPath = filePath;
 
     await recorder.start(
-      const RecordConfig(encoder: AudioEncoder.wav),
+      const RecordConfig(encoder: AudioEncoder.wav, autoGain: true),
       path: filePath,
     );
     setState(() {
@@ -274,6 +275,16 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
     final isautopolish = await getSetting("autoRefine");
     if (isautopolish == "true") {
       _handlePolish();
+    }
+  }
+
+  var currentMic = "Loading.....";
+  Future<void> _loadDefaultMic() async {
+    final devices = await recorder.listInputDevices();
+    if (devices.isNotEmpty) {
+      setState(() {
+        currentMic = devices.first.label;
+      });
     }
   }
 
@@ -375,20 +386,8 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            _buildIconButton(Icons.history, () async {
-              await WindowManagerPlus.current.setSize(
-                const Size(800, 500),
-                animate: true,
-              );
-            }),
-            const SizedBox(width: 8),
-            if (textController.text.isNotEmpty && !isProcessing && !isVoiceMode)
-              _buildIconButton(Icons.auto_fix_high, _handlePolish),
-            // const SizedBox(width: 8),
-          ],
-        ),
+        if (textController.text.isNotEmpty && !isProcessing && !isVoiceMode)
+          _buildIconButton(Icons.auto_fix_high, _handlePolish),
         Expanded(
           child: SizedBox(
             height: 27,
@@ -397,6 +396,10 @@ class _LauncherScreenState extends State<LauncherScreen> with WindowListener {
               onPanStart: (_) {
                 WindowManagerPlus.current.startDragging();
               },
+              child: Text(
+                "  Mic: $currentMic",
+                style: TextStyle(color: Colors.white30),
+              ),
             ),
           ),
         ),
