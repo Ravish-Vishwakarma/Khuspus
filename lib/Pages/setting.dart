@@ -330,13 +330,6 @@ TRANSCRIPTION:
                 children: const [
                   TextSpan(text: 'Use '),
                   TextSpan(
-                    text: '{{memory}}',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(
-                    text: ' to insert your custom spelling corrections and ',
-                  ),
-                  TextSpan(
                     text: '{{transcription}}',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -344,8 +337,21 @@ TRANSCRIPTION:
                 ],
               ),
             ),
+            SizedBox(height: 10),
+            Center(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(),
+                  borderRadius: BorderRadius.circular(5),
+                  color: Colors.grey[50],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Text("Made With Love By Ravish ❤️"),
+                ),
+              ),
+            ),
             SizedBox(height: 20),
-            Center(child: Text("Made With Love By Ravish ❤️")),
           ],
         ),
       ),
